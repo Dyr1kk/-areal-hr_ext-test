@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { DepartmentsModule } from './modules/departments/departments.module'; 
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
       synchronize: false, 
     }),
     OrganizationsModule,
+    DepartmentsModule, 
   ],
   controllers: [],
   providers: [],
