@@ -1,5 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UsePipes } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
+import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
+import { createOrganizationSchema, updateOrganizationSchema } from '../../schemas/organization.joi.schema';
 
 @Controller('organizations')
 export class OrganizationsController {
@@ -16,11 +18,13 @@ export class OrganizationsController {
   }
 
   @Post()
+  @UsePipes(new JoiValidationPipe(createOrganizationSchema))
   create(@Body() createOrgDto: any) {
     return this.organizationsService.create(createOrgDto);
   }
 
   @Put(':id')
+  @UsePipes(new JoiValidationPipe(updateOrganizationSchema))
   update(@Param('id') id: string, @Body() updateOrgDto: any) {
     return this.organizationsService.update(id, updateOrgDto);
   }
