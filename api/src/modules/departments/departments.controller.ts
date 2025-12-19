@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UsePipes, ParseUUIDPipe } from '@nestjs/common';
 import { DepartmentsService } from './departments.service';
-import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
-import { createDepartmentSchema, updateDepartmentSchema } from '../../schemas/department.joi.schema';
+import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { JoiValidationPipe } from '../../pipes/joi-validation.pipe'; 
+import { createDepartmentSchema, updateDepartmentSchema } from '../../schemas/department.joi.schema'; // ✅
 
 @Controller('departments')
 export class DepartmentsController {
@@ -13,24 +15,27 @@ export class DepartmentsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) { 
     return this.departmentsService.findOne(id);
   }
 
   @Post()
-  @UsePipes(new JoiValidationPipe(createDepartmentSchema))
-  create(@Body() createDeptDto: any) {
-    return this.departmentsService.create(createDeptDto);
+  @UsePipes(new JoiValidationPipe(createDepartmentSchema)) 
+  create(@Body() createDto: CreateDepartmentDto) { 
+    return this.departmentsService.create(createDto);
   }
 
   @Put(':id')
-  @UsePipes(new JoiValidationPipe(updateDepartmentSchema))
-  update(@Param('id') id: string, @Body() updateDeptDto: any) {
-    return this.departmentsService.update(id, updateDeptDto);
+  @UsePipes(new JoiValidationPipe(updateDepartmentSchema)) 
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string, 
+    @Body() updateDto: UpdateDepartmentDto, 
+  ) {
+    return this.departmentsService.update(id, updateDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe()) id: string) { 
     return this.departmentsService.remove(id);
   }
 }

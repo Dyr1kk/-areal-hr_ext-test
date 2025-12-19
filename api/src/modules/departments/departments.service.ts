@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Department } from './entities/department.entity';
 
 @Injectable()
@@ -11,11 +11,11 @@ export class DepartmentsService {
   ) {}
 
   findAll() {
-    return this.departmentsRepository.find({ where: { deletedAt: undefined}, relations: ['organization'] });
+    return this.departmentsRepository.find({ where: { deletedAt: IsNull() }, relations: ['organization'] });
   }
 
   findOne(id: string) {
-    return this.departmentsRepository.findOne({ where: { id, deletedAt: undefined }, relations: ['organization'] });
+    return this.departmentsRepository.findOne({ where: { id, deletedAt: IsNull() }, relations: ['organization'] });
   }
 
   create(createDeptDto: any) {
@@ -24,11 +24,19 @@ export class DepartmentsService {
   }
 
   async update(id: string, updateDeptDto: any) {
+    const existing = await this.departmentsRepository.findOne({ where: { id, deletedAt: IsNull() } });
+    if (!existing) {
+      throw new NotFoundException(`Department with ID "${id}" not found`);
+    }
     await this.departmentsRepository.update(id, updateDeptDto);
     return this.findOne(id);
   }
 
   async remove(id: string) {
+    const existing = await this.departmentsRepository.findOne({ where: { id, deletedAt: IsNull() } });
+    if (!existing) {
+      throw new NotFoundException(`Department with ID "${id}" not found`);
+    }
     await this.departmentsRepository.update(id, { deletedAt: new Date() });
     return { message: 'Department soft deleted' };
   }

@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UsePipes, ParseUUIDPipe } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
-import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
-import { createOrganizationSchema, updateOrganizationSchema } from '../../schemas/organization.joi.schema';
+import { CreateOrganizationDto} from './dto/create-organization.dto';
+import { UpdateOrganizationDto} from './dto/update-organization.dto';
+import { JoiValidationPipe } from '../../pipes/joi-validation.pipe'; 
+import { createOrganizationSchema, updateOrganizationSchema } from '../../schemas/organization.joi.schema'; // ✅
 
 @Controller('organizations')
 export class OrganizationsController {
@@ -13,24 +15,27 @@ export class OrganizationsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) { 
     return this.organizationsService.findOne(id);
   }
 
   @Post()
-  @UsePipes(new JoiValidationPipe(createOrganizationSchema))
-  create(@Body() createOrgDto: any) {
-    return this.organizationsService.create(createOrgDto);
+  @UsePipes(new JoiValidationPipe(createOrganizationSchema)) 
+  create(@Body() createDto: CreateOrganizationDto) { 
+    return this.organizationsService.create(createDto);
   }
 
   @Put(':id')
   @UsePipes(new JoiValidationPipe(updateOrganizationSchema))
-  update(@Param('id') id: string, @Body() updateOrgDto: any) {
-    return this.organizationsService.update(id, updateOrgDto);
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateDto: UpdateOrganizationDto, 
+  ) {
+    return this.organizationsService.update(id, updateDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe()) id: string) { 
     return this.organizationsService.remove(id);
   }
 }
